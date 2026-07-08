@@ -214,6 +214,44 @@ rkdeveloptool wl 0 ${WIC}
 rkdeveloptool rd
 ```
 
+### Alternative flashing method (`upgrade_tool`)
+
+On some RV1106-based boards, including the Luckfox Pico Ultra W, the
+`rkdeveloptool` sequence above may fail with errors such as:
+
+```
+Opening loader failed
+wrong hash of loader
+```
+
+As an alternative, this layer also generates a complete Rockchip download
+loader (`rv1106_download_v1.15.108.bin`) using `boot_merger` during the
+U-Boot build. The generated loader is deployed alongside the WIC image and
+can be flashed using Rockchip's `upgrade_tool`:
+
+```bash
+upgrade_tool LD
+upgrade_tool DB rv1106_download_v1.15.108.bin
+upgrade_tool WL 0 ${WIC}
+upgrade_tool RD
+```
+
+`LD` should report:
+
+```
+Mode=Maskrom
+```
+
+and `DB` should finish with:
+
+```
+Download boot ok.
+```
+
+Unlike the `rkdeveloptool` flow, the generated `rv1106_download_v*.bin`
+already contains the required DDR initialization and SPL loader, so no
+separate `rv1106_ddr_*.bin` or `rv1106_usbplug_*.bin` files are required.
+
 ## Boot Chain
 
 ```

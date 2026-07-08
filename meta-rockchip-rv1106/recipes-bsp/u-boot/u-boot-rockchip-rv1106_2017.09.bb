@@ -129,6 +129,11 @@ do_compile() {
             -d ${WORKDIR}/rkbin/${RKBIN_DDR}:${WORKDIR}/rkbin/${RKBIN_SPL} \
             ${B}/idbloader.img
     fi
+
+    if [ ! -f "${B}/rv1106_download_v1.15.108.bin" ]; then
+        cd ${WORKDIR}/rkbin
+        ./tools/boot_merger RKBOOT/RV1106MINIALL.ini    
+    fi
 }
 
 do_deploy() {
@@ -145,8 +150,13 @@ do_deploy() {
     if [ -f "${B}/u-boot-dtb.bin" ]; then
         install -m 0644 ${B}/u-boot-dtb.bin ${DEPLOYDIR}/u-boot-dtb.bin
     fi
+    
     if [ -f "${B}/spl/u-boot-spl.bin" ]; then
         install -m 0644 ${B}/spl/u-boot-spl.bin ${DEPLOYDIR}/u-boot-spl.bin
+    fi
+
+    if [ -f "${WORKDIR}/rkbin/rv1106_download_v1.15.108.bin" ]; then
+        install -m 0644 ${WORKDIR}/rkbin/rv1106_download_v1.15.108.bin ${DEPLOYDIR}/rv1106_download_v1.15.108.bin
     fi
 }
 
