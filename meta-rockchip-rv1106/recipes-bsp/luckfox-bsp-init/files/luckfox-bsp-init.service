@@ -1,0 +1,12 @@
+[Unit]
+Description=Luckfox BSP initialization
+DefaultDependencies=no
+After=systemd-modules-load.service systemd-udevd.service
+Before=basic.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/libexec/luckfox-bsp-init
+
+[Install]
+WantedBy=basic.target

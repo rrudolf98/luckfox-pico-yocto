@@ -1,0 +1,81 @@
+#!/bin/sh
+
+set -e
+
+udevadm control --stop-exec-queue
+
+add_sdk_compat()
+{
+    local module="$1"
+    local module_path
+    module_path="$(modinfo -n "$module" 2>/dev/null)" || return 1
+    mkdir -p /oem/usr/ko
+    ln -sf "$module_path" "/oem/usr/ko/${module}.ko"
+}
+
+get_camera_sensor_height()
+{
+    local sensor_height=0
+    local msg
+
+    for item in /proc/rkisp-vir0 /proc/rkisp0; do
+        [ -f "$item" ] || continue
+        msg=$(grep -w "Input.*Format" "$item" 2>/dev/null) || continue
+        msg=${msg##*Size:*x}
+        msg=${msg%%@*}
+        sensor_height="$msg"
+        break
+    done
+
+    echo "$sensor_height"
+}
+
+for f in /etc/luckfox-bsp-init.d/*.conf; do
+    [ -f "$f" ] || continue
+
+    component=$(basename "$f" .conf)
+    modules=""
+
+    while IFS= read -r module; do
+        case "$module" in
+            ""|\#*) continue ;;
+        esac
+
+        if ! modinfo "$module" >/dev/null 2>&1; then
+            echo "WARNING: Skipping component '$component' - missing module '$module'" >&2
+            modules=""
+            break
+        fi
+
+        modules="$modules $module"
+    done < "$f"
+
+    [ -z "$modules" ] && continue
+
+    echo "Loading component '$component'"
+
+    for module in $modules; do
+        add_sdk_compat "$module"
+
+        case "$module" in
+            rockit)
+                sensor_height="$(get_camera_sensor_height)"
+
+                modprobe rockit \
+                    mcu_fw_path=/lib/firmware/hpmcu_wrap.bin \
+                    mcu_fw_addr=0xff6fe000 \
+                    isp_max_h="$sensor_height"
+                ;;
+            *)
+                modprobe "$module"
+                ;;
+        esac
+    done
+
+    case "$component" in
+        *camera-pipeline)
+            echo 1 > /sys/module/video_rkcif/parameters/clr_unready_dev
+            echo 1 > /sys/module/video_rkisp/parameters/clr_unready_dev
+            ;;
+    esac
+done
