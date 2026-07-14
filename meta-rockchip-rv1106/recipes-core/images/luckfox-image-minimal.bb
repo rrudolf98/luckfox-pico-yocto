@@ -20,7 +20,7 @@ IMAGE_INSTALL = " \
     packagegroup-core-boot \
     packagegroup-luckfox-rv1106-base \
     kernel-modules \
-    rockchip-bsp-init \
+    luckfox-bsp-init \
     alsa-utils \
     avahi-daemon \
     aic8800dc-wifi-bt \
