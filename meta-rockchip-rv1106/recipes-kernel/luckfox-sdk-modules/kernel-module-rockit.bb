@@ -6,10 +6,13 @@ COMPATIBLE_MACHINE = "(luckfox-pico-ultra-w)"
 inherit luckfox-sdk
 inherit luckfox-prebuilt-module
 
-DEPENDS += "linux-rockchip-rv1106"
+DEPENDS += "linux-rockchip-rv1106 luckfox-hpmcu-wrap-firmware"
 
 PREBUILT_MODULE = "sysdrv/drv_ko/rockit/release_rockit-ko_rv1106_arm/rockit.ko"
 
+# Remove incorrect dependency on kernel-module-venc-demo.
+# The prebuilt Rockit module advertises it via modinfo, but depmod
+# does not resolve it and modprobe loads the module without it.
 python populate_packages:append() {
     kv = d.getVar("KERNEL_VERSION")
 
@@ -21,7 +24,5 @@ python populate_packages:append() {
     if bad in rdeps:
         rdeps.remove(bad)
         d.setVar("RDEPENDS:" + pkg, " ".join(rdeps))
-        bb.note("Removed bogus dependency '%s'" % bad)
+        bb.note("Removed incorrect dependency '%s'" % bad)
 }
-
-PACKAGES:remove = "${PN}-dbg ${PN}-dev"
