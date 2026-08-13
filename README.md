@@ -213,6 +213,34 @@ rkdeveloptool ul ${RKBIN}/rv1106_usbplug_v1.09.bin
 rkdeveloptool wl 0 ${WIC}
 rkdeveloptool rd
 ```
+## Alternative flashing with `upgrade_tool`
+
+If `rkdeveloptool` fails to initialize the board and reports errors you can use Rockchip's `upgrade_tool` as an alternative flashing method.
+
+The BSP generates a complete RV1106 download loader during the U-Boot build using `boot_merger`. The resulting `rv1106_download_v1.15.108.bin` is deployed together with the WIC image and contains the required DDR initialization and SPL/USB loader.
+
+Flash the image with:
+
+```bash
+upgrade_tool LD
+upgrade_tool DB rv1106_download_v1.15.108.bin
+upgrade_tool WL 0 ${WIC}
+upgrade_tool RD
+```
+
+`upgrade_tool LD` should detect the board in Maskrom mode:
+
+```text
+Mode=Maskrom
+```
+
+and the `DB` command should complete with:
+
+```text
+Download boot ok.
+```
+
+No separate DDR or USB plug-in binaries are required when using the generated download loader.
 
 ## Boot Chain
 
