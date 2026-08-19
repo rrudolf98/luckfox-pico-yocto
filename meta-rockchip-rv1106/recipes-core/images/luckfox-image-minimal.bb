@@ -19,12 +19,16 @@ COMPATIBLE_MACHINE = "(luckfox-pico-ultra-w)"
 IMAGE_INSTALL = " \
     packagegroup-core-boot \
     packagegroup-luckfox-rv1106-base \
+    luckfox-hpmcu-wrap-firmware \
     kernel-modules \
+    kernel-module-mpp-vcodec \
+    kernel-module-rockit \
     alsa-utils \
     avahi-daemon \
     aic8800dc-wifi-bt \
     aic8800dc-firmware \
     bluez5 \
+    luckfox-bsp-init \
     luckfox-bt-init \
     luckfox-pico-status \
     luckfox-lvgl-demo \
