@@ -48,14 +48,12 @@ IMAGE_OVERHEAD_FACTOR ?= "1.2"
 EXTRA_IMAGE_FEATURES += "debug-tweaks"
 
 # Auto-load kernel modules at boot.
-#   rknpu   — /dev/rknpu for the NPU demos.
 #   aic8800 — WiFi driver (wlan0) and BT driver (UART1 HCI). The
 #             luckfox-bt-attach.service relies on aic8800_fdrv being
 #             loaded before it runs hciattach, because the firmware
 #             is pushed by the WiFi side.
-rknpu_modules_load() {
+wifi_module_load() {
     install -d ${IMAGE_ROOTFS}${sysconfdir}/modules-load.d
-    echo rknpu > ${IMAGE_ROOTFS}${sysconfdir}/modules-load.d/rknpu.conf
     cat > ${IMAGE_ROOTFS}${sysconfdir}/modules-load.d/aic8800.conf <<'EOF'
 aic8800_bsp
 aic8800_fdrv
@@ -75,4 +73,4 @@ enable_networkd() {
         ${IMAGE_ROOTFS}${sysconfdir}/systemd/system/sockets.target.wants/systemd-networkd.socket
 }
 
-ROOTFS_POSTPROCESS_COMMAND:append = " rknpu_modules_load; enable_networkd;"
+ROOTFS_POSTPROCESS_COMMAND:append = " wifi_module_load; enable_networkd;"
